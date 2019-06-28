@@ -43,7 +43,7 @@ class Pose_Estimation(object):
   def _build_model(self):
     """Build the core model within the graph."""
    
-    with tf.variable_scope('Spatial_Transformer'):
+    with tf.compat.v1.variable_scope('Spatial_Transformer'):
       x = self._images
       x = tf.image.resize_bilinear(x, tf.constant([227,227], dtype=tf.int32)) # the image should be 227 x 227 x 3
       
@@ -123,7 +123,7 @@ class Pose_Estimation(object):
 
 
         k_h = 3; k_w = 3; s_h = 2; s_w = 2; padding = 'VALID'
-        maxpool1 = tf.nn.max_pool(conv1, ksize=[1, k_h, k_w, 1], strides=[1, s_h, s_w, 1], padding=padding, name='pool1')
+        maxpool1 = tf.nn.max_pool2d(conv1, ksize=[1, k_h, k_w, 1], strides=[1, s_h, s_w, 1], padding=padding, name='pool1')
                                                                                        
         radius = 2; alpha = 2e-05; beta = 0.75; bias = 1.0
         lrn1 = tf.nn.local_response_normalization(maxpool1,
@@ -215,7 +215,7 @@ class Pose_Estimation(object):
         fc6b = tf.Variable(self.net_data["fc6"]["biases"], trainable=False, name='baises')
         self.fc6W = fc6W
         self.fc6b = fc6b
-        fc6 = tf.nn.relu_layer(tf.reshape(maxpool5, [-1, int(np.prod(maxpool5.get_shape()[1:]))]), fc6W, fc6b, name='fc6')
+        fc6 = tf.compat.v1.nn.relu_layer(tf.reshape(maxpool5, [-1, int(np.prod(maxpool5.get_shape()[1:]))]), fc6W, fc6b, name='fc6')
         #print fc6.get_shape()
         if self.ifdropout == 1:
           fc6 = tf.nn.dropout(fc6, self.keep_rate_fc6, name='fc6_dropout')
@@ -239,7 +239,7 @@ class Pose_Estimation(object):
         dim = fc7.get_shape()[1].value
         #print "fc7 dim:\n"
         #print fc7.get_shape(), dim
-        fc8W = tf.Variable(tf.random_normal(tf.stack([dim, self.labels.shape[1]]), mean=0.0, stddev=0.01), trainable=False, name='W')                                                                    
+        fc8W = tf.Variable(tf.random.normal(tf.stack([dim, self.labels.shape[1]]), mean=0.0, stddev=0.01), trainable=False, name='W')                                                                    
         fc8b = tf.Variable(tf.zeros([self.labels.shape[1]]), trainable=False, name='baises')                                                                                                      
         self.fc8b = fc8b
         theta = tf.nn.xw_plus_b(fc7, fc8W, fc8b)  

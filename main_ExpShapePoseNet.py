@@ -21,7 +21,7 @@ from ThreeDMM_shape import ResNet_101 as resnet101_shape
 from ThreeDMM_expr import ResNet_101 as resnet101_expr
 
 
-tf.logging.set_verbosity(tf.logging.INFO)
+tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.INFO)
 FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_integer('image_size', 227, 'Image side length.')
 tf.app.flags.DEFINE_integer('num_gpus', 1, 'Number of gpus used for training. (0 or 1)')
@@ -78,7 +78,7 @@ def extract_PSE_feats():
 
 
 	# placeholders for the batches                                                                                                                            
-        x = tf.placeholder(tf.float32, [FLAGS.batch_size, FLAGS.image_size, FLAGS.image_size, 3])
+        x = tf.compat.v1.placeholder(tf.float32, [FLAGS.batch_size, FLAGS.image_size, FLAGS.image_size, 3])
        
         
      
@@ -86,28 +86,28 @@ def extract_PSE_feats():
         ###################
         # Face Pose-Net
         ###################
-        net_data = np.load("./fpn_new_model/PAM_frontal_ALexNet.npy").item()
-        pose_labels = np.zeros([FLAGS.batch_size,6])
-        x1 = tf.image.resize_bilinear(x, tf.constant([227,227], dtype=tf.int32))
+        # net_data = np.load("./fpn_new_model/PAM_frontal_ALexNet.npy").item()
+        # pose_labels = np.zeros([FLAGS.batch_size,6])
+        # x1 = tf.compat.v1.image.resize_bilinear(x, tf.constant([227,227], dtype=tf.int32))
         
-        # Image normalization
-        x1 = x1 / 255. # from [0,255] to [0,1]
-        # subtract training mean
-        mean = tf.reshape(train_mean_vec, [1, 1, 1, 3])
-        mean = tf.cast(mean, 'float32')
-        x1 = x1 - mean
+        # # Image normalization
+        # x1 = x1 / 255. # from [0,255] to [0,1]
+        # # subtract training mean
+        # mean = tf.reshape(train_mean_vec, [1, 1, 1, 3])
+        # mean = tf.cast(mean, 'float32')
+        # x1 = x1 - mean
 
 
-        pose_model = Pose_model.Pose_Estimation(x1, pose_labels, 'valid', 0, 1, 1, 0.01, net_data, FLAGS.batch_size, mean_labels, std_labels)
-        pose_model._build_graph()
-        del net_data
+        # pose_model = Pose_model.Pose_Estimation(x1, pose_labels, 'valid', 0, 1, 1, 0.01, net_data, FLAGS.batch_size, mean_labels, std_labels)
+        # pose_model._build_graph()
+        # del net_data
         
         
 
         ###################
         # Shape CNN
         ###################
-        x2 = tf.image.resize_bilinear(x, tf.constant([224,224], dtype=tf.int32))
+        x2 = tf.compat.v1.image.resize_bilinear(x, tf.constant([224,224], dtype=tf.int32))
         x2 = tf.cast(x2, 'float32')
         x2 = tf.reshape(x2, [FLAGS.batch_size, 224, 224, 3])
         
@@ -116,20 +116,20 @@ def extract_PSE_feats():
         mean = tf.cast(mean, 'float32')
         x2 = x2 - mean
 
-        with tf.variable_scope('shapeCNN'):
-                net_shape = resnet101_shape({'input': x2}, trainable=True)
-                pool5 = net_shape.layers['pool5']
-                pool5 = tf.squeeze(pool5)
-                pool5 = tf.reshape(pool5, [FLAGS.batch_size,-1])
+        # with tf.variable_scope('shapeCNN'):
+        #         net_shape = resnet101_shape({'input': x2}, trainable=True)
+        #         pool5 = net_shape.layers['pool5']
+        #         pool5 = tf.squeeze(pool5)
+        #         pool5 = tf.reshape(pool5, [FLAGS.batch_size,-1])
 
                 
-                npzfile = np.load('./ResNet/ShapeNet_fc_weights.npz')
-                ini_weights_shape = npzfile['ini_weights_shape']
-                ini_biases_shape = npzfile['ini_biases_shape']
-                with tf.variable_scope('shapeCNN_fc1'):
-                        fc1ws = tf.Variable(tf.reshape(ini_weights_shape, [2048,-1]), trainable=True, name='weights')
-                        fc1bs = tf.Variable(tf.reshape(ini_biases_shape, [-1]), trainable=True, name='biases')
-                        fc1ls = tf.nn.bias_add(tf.matmul(pool5, fc1ws), fc1bs)
+        #         npzfile = np.load('./ResNet/ShapeNet_fc_weights.npz')
+        #         ini_weights_shape = npzfile['ini_weights_shape']
+        #         ini_biases_shape = npzfile['ini_biases_shape']
+        #         with tf.variable_scope('shapeCNN_fc1'):
+        #                 fc1ws = tf.Variable(tf.reshape(ini_weights_shape, [2048,-1]), trainable=True, name='weights')
+        #                 fc1bs = tf.Variable(tf.reshape(ini_biases_shape, [-1]), trainable=True, name='biases')
+        #                 fc1ls = tf.nn.bias_add(tf.matmul(pool5, fc1ws), fc1bs)
                        
 
 
@@ -137,7 +137,7 @@ def extract_PSE_feats():
         ###################
         # Expression CNN
         ###################
-        with tf.variable_scope('exprCNN'):
+        with tf.compat.v1.variable_scope('exprCNN'):
                 net_expr = resnet101_expr({'input': x2}, trainable=True)
                 pool5 = net_expr.layers['pool5']
                 pool5 = tf.squeeze(pool5)
@@ -147,7 +147,7 @@ def extract_PSE_feats():
                 npzfile = np.load('./ResNet/ExpNet_fc_weights.npz')
                 ini_weights_expr = npzfile['ini_weights_expr']
                 ini_biases_expr = npzfile['ini_biases_expr']
-                with tf.variable_scope('exprCNN_fc1'):
+                with tf.compat.v1.variable_scope('exprCNN_fc1'):
                         fc1we = tf.Variable(tf.reshape(ini_weights_expr, [2048,29]), trainable=True, name='weights')
                         fc1be = tf.Variable(tf.reshape(ini_biases_expr, [29]), trainable=True, name='biases')
                         fc1le = tf.nn.bias_add(tf.matmul(pool5, fc1we), fc1be)
@@ -159,25 +159,25 @@ def extract_PSE_feats():
         
 
         # Add ops to save and restore all the variables.                                                                                                                
-        init_op = tf.global_variables_initializer()
-        saver_pose = tf.train.Saver(var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='Spatial_Transformer'))
-        saver_ini_shape_net = tf.train.Saver(var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='shapeCNN'))
-        saver_ini_expr_net = tf.train.Saver(var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='exprCNN'))
+        init_op = tf.compat.v1.global_variables_initializer()
+        # saver_pose = tf.train.Saver(var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='Spatial_Transformer'))
+        # saver_ini_shape_net = tf.train.Saver(var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='shapeCNN'))
+        saver_ini_expr_net = tf.compat.v1.train.Saver(var_list=tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope='exprCNN'))
 
-        with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
+        with tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(allow_soft_placement=True)) as sess:
                
                
                 sess.run(init_op)
                 
 
                 # Load face pose net model from Chang et al.'ICCVW17
-                load_path = "./fpn_new_model/model_0_1.0_1.0_1e-07_1_16000.ckpt"
-                saver_pose.restore(sess, load_path)
+                # load_path = "./fpn_new_model/model_0_1.0_1.0_1e-07_1_16000.ckpt"
+                # saver_pose.restore(sess, load_path)
 
                 
                 # load 3dmm shape and texture model from Tran et al.' CVPR2017
-                load_path = "./Shape_Model/ini_ShapeTextureNet_model.ckpt"
-                saver_ini_shape_net.restore(sess, load_path)
+                # load_path = "./Shape_Model/ini_ShapeTextureNet_model.ckpt"
+                # saver_ini_shape_net.restore(sess, load_path)
 
                 # load our expression net model
                 load_path = "./Expression_Model/ini_exprNet_model.ckpt"
@@ -191,11 +191,11 @@ def extract_PSE_feats():
 
                
                 ## Modifed Basel Face Model
-                BFM_path = './Shape_Model/BaselFaceModel_mod.mat'
-                model = scipy.io.loadmat(BFM_path,squeeze_me=True,struct_as_record=False)
-                model = model["BFM"]
-                faces = model.faces-1
-                print '> Loaded the Basel Face Model to write the 3D output!'
+                # BFM_path = './Shape_Model/BaselFaceModel_mod.mat'
+                # model = scipy.io.loadmat(BFM_path,squeeze_me=True,struct_as_record=False)
+                # model = model["BFM"]
+                # faces = model.faces-1
+                # print '> Loaded the Basel Face Model to write the 3D output!'
 
 
                
@@ -220,18 +220,20 @@ def extract_PSE_feats():
 
 
                                 image = np.reshape(image, [1, FLAGS.image_size, FLAGS.image_size, 3])
-                                (Shape_Texture, Expr, Pose) = sess.run([fc1ls, fc1le, pose_model.preds_unNormalized], feed_dict={x: image})
-                                
+                                # (Shape_Texture, Expr, Pose) = sess.run([fc1ls, fc1le, pose_model.preds_unNormalized], feed_dict={x: image})
+                                Expr = sess.run([fc1le], feed_dict={x: image})
                         
 
                                 outFile = mesh_folder + '/' + image_key
                                 
 
-                                Pose = np.reshape(Pose, [-1])
-                                Shape_Texture = np.reshape(Shape_Texture, [-1])
-                                Shape = Shape_Texture[0:99]
-                                Shape = np.reshape(Shape, [-1])
+                                # Pose = np.reshape(Pose, [-1])
+                                # Shape_Texture = np.reshape(Shape_Texture, [-1])
+                                # Shape = Shape_Texture[0:99]
+                                # Shape = np.reshape(Shape, [-1])
                                 Expr = np.reshape(Expr, [-1])
+
+                                print Expr
                                 
 
 
@@ -249,8 +251,8 @@ def extract_PSE_feats():
                                
 
                                 # Shape + Expression + Pose
-                                SEP,TEP = utils.projectBackBFM_withEP(model, Shape_Texture, Expr, Pose)
-                                utils.write_ply_textureless(outFile + '_Shape_Expr_Pose.ply', SEP, faces)
+                                #SEP,TEP = utils.projectBackBFM_withEP(model, Shape_Texture, Expr, Pose)
+                                #utils.write_ply_textureless(outFile + '_Shape_Expr_Pose.ply', SEP, faces)
 
 
                                
@@ -261,20 +263,22 @@ def extract_PSE_feats():
 	
 
 def main(_):
-        os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-        os.environ["CUDA_VISIBLE_DEVICES"]="2"
-        if FLAGS.num_gpus == 0:
-                dev = '/cpu:0'
-        elif FLAGS.num_gpus == 1:
-                dev = '/gpu:0'
-        else:
-                raise ValueError('Only support 0 or 1 gpu.')
+        with tf.device('/cpu:0'):
+                extract_PSE_feats()
+        # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+        # os.environ["CUDA_VISIBLE_DEVICES"]="2"
+        # if FLAGS.num_gpus == 0:
+        #         dev = '/cpu:0'
+        # elif FLAGS.num_gpus == 1:
+        #         dev = '/gpu:0'
+        # else:
+        #         raise ValueError('Only support 0 or 1 gpu.')
 
         
-        #print dev
-        with tf.device(dev):
-                extract_PSE_feats()
+        # #print dev
+        # with tf.device(dev):
+        #         extract_PSE_feats()
 
 
 if __name__ == '__main__':
-        tf.app.run()
+        tf.compat.v1.app.run()

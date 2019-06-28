@@ -42,7 +42,7 @@ class Network_Expr(object):
         self.trainable = trainable
         #print self.trainable
         # Switch variable for dropout
-        self.use_dropout = tf.placeholder_with_default(tf.constant(1.0),
+        self.use_dropout = tf.compat.v1.placeholder_with_default(tf.constant(1.0),
                                                        shape=[],
                                                        name='use_dropout')
         self.setup()
@@ -158,13 +158,13 @@ class Network_Expr(object):
 
     def make_var(self, name, shape):
         '''Creates a new TensorFlow variable.'''
-        return tf.get_variable(name, shape, trainable=self.trainable) #self.trainable)
+        return tf.compat.v1.get_variable(name, shape, trainable=self.trainable) #self.trainable)
         #tmp = tf.get_variable(name, shape=shape, trainable=False)
         #return tf.Variable(tmp, trainable=False, name=name)
 
     def make_var_fixed(self, name, shape):
         '''Creates a new TensorFlow variable.'''
-        return tf.get_variable(name, shape, trainable=False)
+        return tf.compat.v1.get_variable(name, shape, trainable=False)
         #tmp = tf.get_variable(name, shape=shape, trainable=False)
         #return tf.Variable(tmp, trainable=False, name=name)
 
@@ -194,7 +194,7 @@ class Network_Expr(object):
         assert c_o % group == 0
         # Convolution for a given input and kernel
         convolve = lambda i, k: tf.nn.conv2d(i, k, [1, s_h, s_w, 1], padding=padding)
-        with tf.variable_scope(name) as scope:
+        with tf.compat.v1.variable_scope(name) as scope:
             if name == 'res5c_branch2c' or name == 'res5c_branch2b' or name == 'res5c_branch2a' or \
                name == 'res5b_branch2c' or name == 'res5b_branch2b' or name == 'res5b_branch2a':   
                 kernel = self.make_var('weights', shape=[k_h, k_w, c_i / group, c_o])
@@ -231,7 +231,7 @@ class Network_Expr(object):
     @layer
     def max_pool(self, input, k_h, k_w, s_h, s_w, name, padding=DEFAULT_PADDING):
         self.validate_padding(padding)
-        return tf.nn.max_pool(input,
+        return tf.nn.max_pool2d(input,
                               ksize=[1, k_h, k_w, 1],
                               strides=[1, s_h, s_w, 1],
                               padding=padding,
@@ -240,7 +240,7 @@ class Network_Expr(object):
     @layer
     def avg_pool(self, input, k_h, k_w, s_h, s_w, name, padding=DEFAULT_PADDING):
         self.validate_padding(padding)
-        return tf.nn.avg_pool(input,
+        return tf.nn.avg_pool2d(input,
                               ksize=[1, k_h, k_w, 1],
                               strides=[1, s_h, s_w, 1],
                               padding=padding,
@@ -297,7 +297,7 @@ class Network_Expr(object):
     @layer
     def batch_normalization(self, input, name, scale_offset=True, relu=False):
         # NOTE: Currently, only inference is supported
-        with tf.variable_scope(name) as scope:
+        with tf.compat.v1.variable_scope(name) as scope:
             shape = [input.get_shape()[-1]]
             if scale_offset:
                 scale = self.make_var_fixed('scale', shape=shape)
