@@ -84,7 +84,7 @@ def preProcessImage(_savingDir, data_dict, data_root, factor, _alexNetSize, _lis
         filename = data_dict[key]['file']
         im = cv2.imread(data_root +  filename)
         if im is not None:
-            print 'Processing ' + filename + ' '+ str(count)
+            print('Processing ' + filename + ' '+ str(count))
             sys.stdout.flush()
             lt_x = data_dict[key]['x']
             lt_y = data_dict[key]['y']
