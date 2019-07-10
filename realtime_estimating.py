@@ -1,9 +1,11 @@
 import numpy as np
 import cv2
+import time
 
 
 def realtime_estimating(sess, FLAGS, fc1le, pose_model, x):
     while True:
+        start = time.time()
         image = cv2.imread('./tmp/subject10_a.jpg', 1)
 
         image = np.asarray(image)
@@ -19,7 +21,9 @@ def realtime_estimating(sess, FLAGS, fc1le, pose_model, x):
         Pose = np.reshape(Pose, [-1])
         Expr = np.reshape(Expr, [-1])
 
-        print 'Pose coefficients:'
-        print Pose
-        print 'Expression coefficients:'
-        print Expr
+        print ('Pose coefficients:')
+        print (Pose)
+        print ('Expression coefficients:')
+        print (Expr)
+
+        print(time.time() - start)

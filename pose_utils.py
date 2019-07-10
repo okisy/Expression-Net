@@ -17,8 +17,8 @@ def increaseBbox(bbox, factor):
     dw = 1 + factor
     dh = 1 + factor
     # Getting bbox height and width
-    w = brx - tlx;
-    h = bry - tly;
+    w = brx - tlx
+    h = bry - tly
     tlx2 = tlx - w * dx
     tly2 = tly - h * dy
     brx2 = tlx + w * dw
@@ -39,7 +39,7 @@ def image_bbox_processing_v2(img, bbox):
     rb_y = bbox[3]
 
     fillings = np.zeros((4, 1), dtype=np.int32)
-    if lt_x < 0:  ## 0 for python
+    if lt_x < 0:  # 0 for python
         fillings[0] = math.ceil(-lt_x)
     if lt_y < 0:
         fillings[1] = math.ceil(-lt_y)
@@ -58,9 +58,11 @@ def image_bbox_processing_v2(img, bbox):
         img_h, img_w, img_c = imgc.shape
         imgc = np.hstack([np.zeros((img_h, fillings[0][0], img_c), dtype=np.uint8), imgc])
     if fillings[1] > 0:
+
         img_h, img_w, img_c = imgc.shape
         imgc = np.vstack([np.zeros((fillings[1][0], img_w, img_c), dtype=np.uint8), imgc])
     if fillings[2] > 0:
+
         img_h, img_w, img_c = imgc.shape
         imgc = np.hstack([imgc, np.zeros((img_h, fillings[2][0], img_c), dtype=np.uint8)])
     if fillings[3] > 0:
@@ -75,7 +77,7 @@ def image_bbox_processing_v2(img, bbox):
 
 
 def preProcessImage(_savingDir, data_dict, data_root, factor, _alexNetSize, _listFile):
-    #### Formatting the images as needed
+    # Formatting the images as needed
     file_output = _listFile
     count = 1
     fileIn = open(file_output, 'w')
@@ -83,7 +85,7 @@ def preProcessImage(_savingDir, data_dict, data_root, factor, _alexNetSize, _lis
         filename = data_dict[key]['file']
         im = cv2.imread(data_root + filename)
         if im is not None:
-            print 'Processing ' + filename + ' ' + str(count)
+            print('Processing ' + filename + ' ' + str(count))
             sys.stdout.flush()
             lt_x = data_dict[key]['x']
             lt_y = data_dict[key]['y']
@@ -98,15 +100,15 @@ def preProcessImage(_savingDir, data_dict, data_root, factor, _alexNetSize, _lis
             bbox[1] = center[1] - side_length / 2
             bbox[2] = center[0] + side_length / 2
             bbox[3] = center[1] + side_length / 2
-            # img_2, bbox_green = image_bbox_processing_v2(im, bbox)
-            # %% Get the expanded square bbox
+            #img_2, bbox_green = image_bbox_processing_v2(im, bbox)
+            #%% Get the expanded square bbox
             bbox_red = increaseBbox(bbox, factor)
-            # [img, bbox_red] = image_bbox_processing_v2(img, bbox_red);
+            #[img, bbox_red] = image_bbox_processing_v2(img, bbox_red);
             img_3, bbox_new = image_bbox_processing_v2(im, bbox_red)
-            # %% Crop and resized
-            # bbox_red = ceil(bbox_red);
+            #%% Crop and resized
+            #bbox_red = ceil(bbox_red);
             bbox_new = np.ceil(bbox_new)
-            # side_length = max(bbox_new(3) - bbox_new(1), bbox_new(4) - bbox_new(2));
+            #side_length = max(bbox_new(3) - bbox_new(1), bbox_new(4) - bbox_new(2));
             side_length = max(bbox_new[2] - bbox_new[0], bbox_new[3] - bbox_new[1])
             bbox_new[2:4] = bbox_new[0:2] + side_length
             # crop_img = img(bbox_red(2):bbox_red(4), bbox_red(1):bbox_red(3), :);
@@ -116,12 +118,12 @@ def preProcessImage(_savingDir, data_dict, data_root, factor, _alexNetSize, _lis
             resized_crop_img = cv2.resize(crop_img, (_alexNetSize, _alexNetSize), interpolation=cv2.INTER_CUBIC)
             cv2.imwrite(_savingDir + key + '.jpg', resized_crop_img)
 
-            ## Tracking pose image
+            # Tracking pose image
             fileIn.write(key + ',')
             fileIn.write(_savingDir + key + '.jpg\n')
 
         else:
-            print ' '.join(['Skipping image:', filename, 'Image is None', str(count)])
+            print(' '.join(['Skipping image:', filename, 'Image is None', str(count)]))
         count += 1
         # if count == 101:
         #    break
@@ -130,4 +132,4 @@ def preProcessImage(_savingDir, data_dict, data_root, factor, _alexNetSize, _lis
 
 def replaceInFile(filep, before, after):
     for line in fileinput.input(filep, inplace=True):
-        print line.replace(before, after),
+        print(line.replace(before, after),)

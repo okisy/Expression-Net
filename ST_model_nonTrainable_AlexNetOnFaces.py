@@ -43,9 +43,9 @@ class Pose_Estimation(object):
   def _build_model(self):
     """Build the core model within the graph."""
    
-    with tf.compat.v1.variable_scope('Spatial_Transformer'):
+    with tf.variable_scope('Spatial_Transformer'):
       x = self._images
-      x = tf.compat.v1.image.resize_bilinear(x, tf.constant([227,227], dtype=tf.int32)) # the image should be 227 x 227 x 3
+      x = tf.image.resize_bilinear(x, tf.constant([227,227], dtype=tf.int32)) # the image should be 227 x 227 x 3
       
       self.resized_img = x
       theta = self._ST('ST2', x, 3, (16,16), 3, 16, self._stride_arr(1))
@@ -98,7 +98,7 @@ class Pose_Estimation(object):
   def _ST(self, name, x, channel_x, out_size, filter_size, out_filters, strides):
     """ Spatial Transformer. """
 
-    with tf.compat.v1.variable_scope(name):
+    with tf.variable_scope(name):
 
       # zero-mean input [B,G,R]: [93.5940, 104.7624, 129.1863] --> provided by vgg-face
       """
@@ -123,7 +123,7 @@ class Pose_Estimation(object):
 
 
         k_h = 3; k_w = 3; s_h = 2; s_w = 2; padding = 'VALID'
-        maxpool1 = tf.nn.max_pool2d(conv1, ksize=[1, k_h, k_w, 1], strides=[1, s_h, s_w, 1], padding=padding, name='pool1')
+        maxpool1 = tf.nn.max_pool(conv1, ksize=[1, k_h, k_w, 1], strides=[1, s_h, s_w, 1], padding=padding, name='pool1')
                                                                                        
         radius = 2; alpha = 2e-05; beta = 0.75; bias = 1.0
         lrn1 = tf.nn.local_response_normalization(maxpool1,
@@ -150,7 +150,7 @@ class Pose_Estimation(object):
         #maxpool2                                                                                                              
         #max_pool(3, 3, 2, 2, padding='VALID', name='pool2')                                                                    
         k_h = 3; k_w = 3; s_h = 2; s_w = 2; padding = 'VALID'
-        maxpool2 = tf.nn.max_pool2d(conv2, ksize=[1, k_h, k_w, 1], strides=[1, s_h, s_w, 1], padding=padding, name='pool2')
+        maxpool2 = tf.nn.max_pool(conv2, ksize=[1, k_h, k_w, 1], strides=[1, s_h, s_w, 1], padding=padding, name='pool2')
         #print maxpool2.get_shape()
 
 
@@ -209,13 +209,13 @@ class Pose_Estimation(object):
         
       
       # fc6
-      with tf.compat.v1.variable_scope('fc6') as scope:
+      with tf.variable_scope('fc6') as scope:
         #fc(4096, name='fc6')
         fc6W = tf.Variable(self.net_data["fc6"]["weights"], trainable=False, name='W')
         fc6b = tf.Variable(self.net_data["fc6"]["biases"], trainable=False, name='baises')
         self.fc6W = fc6W
         self.fc6b = fc6b
-        fc6 = tf.compat.v1.nn.relu_layer(tf.reshape(maxpool5, [-1, int(np.prod(maxpool5.get_shape()[1:]))]), fc6W, fc6b, name='fc6')
+        fc6 = tf.nn.relu_layer(tf.reshape(maxpool5, [-1, int(np.prod(maxpool5.get_shape()[1:]))]), fc6W, fc6b, name='fc6')
         #print fc6.get_shape()
         if self.ifdropout == 1:
           fc6 = tf.nn.dropout(fc6, self.keep_rate_fc6, name='fc6_dropout')
@@ -226,7 +226,7 @@ class Pose_Estimation(object):
         fc7W = tf.Variable(self.net_data["fc7"]["weights"], trainable=False, name='W')
         fc7b = tf.Variable(self.net_data["fc7"]["biases"], trainable=False, name='baises')
         self.fc7b = fc7b
-        fc7 = tf.compat.v1.nn.relu_layer(fc6, fc7W, fc7b, name='fc7')
+        fc7 = tf.nn.relu_layer(fc6, fc7W, fc7b, name='fc7')
         #print fc7.get_shape()
         if self.ifdropout == 1:
           fc7 = tf.nn.dropout(fc7, self.keep_rate_fc7, name='fc7_dropout')
@@ -239,10 +239,10 @@ class Pose_Estimation(object):
         dim = fc7.get_shape()[1].value
         #print "fc7 dim:\n"
         #print fc7.get_shape(), dim
-        fc8W = tf.Variable(tf.random.normal(tf.stack([dim, self.labels.shape[1]]), mean=0.0, stddev=0.01), trainable=False, name='W')                                                                    
+        fc8W = tf.Variable(tf.random_normal(tf.stack([dim, self.labels.shape[1]]), mean=0.0, stddev=0.01), trainable=False, name='W')                                                                    
         fc8b = tf.Variable(tf.zeros([self.labels.shape[1]]), trainable=False, name='baises')                                                                                                      
         self.fc8b = fc8b
-        theta = tf.compat.v1.nn.xw_plus_b(fc7, fc8W, fc8b)
+        theta = tf.nn.xw_plus_b(fc7, fc8W, fc8b)  
 
       
 

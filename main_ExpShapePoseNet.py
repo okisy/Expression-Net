@@ -30,7 +30,7 @@ inputlist = sys.argv[1]  # You can try './input.csv' or input your own file
 
 # Global parameters
 _tmpdir = './tmp/'  # save intermediate images needed to fed into ExpNet, ShapeNet, and PoseNet
-print '> make dir'
+print ('> make dir')
 if not os.path.exists(_tmpdir):
     os.makedirs(_tmpdir)
 output_proc = 'output_preproc.csv'  # save intermediate image list
@@ -62,9 +62,9 @@ mean_image_exp = np.transpose(mean_image_exp, [1, 2, 0])  # 224 x 224 x 3, [0,25
 def extract_PSE_feats():
     # Prepare data
     data_dict = myparse.parse_input(inputlist)  # please see input.csv for the input format
-    print len(data_dict)
+    print (len(data_dict))
     ## Pre-processing the images
-    print '> preproc'
+    print ('> preproc')
     pu.preProcessImage(_tmpdir, data_dict, './', factor, _alexNetSize, output_proc)
 
     # placeholders for the batches
@@ -73,7 +73,7 @@ def extract_PSE_feats():
     ###################
     # Face Pose-Net
     ###################
-    # net_data = np.load("./fpn_new_model/PAM_frontal_ALexNet.npy").item()
+    # net_data = np.load("./fpn_new_model/PAM_frontal_ALexNet_py3").item()
     # pose_labels = np.zeros([FLAGS.batch_size,6])
     # x1 = tf.compat.v1.image.resize_bilinear(x, tf.constant([227,227], dtype=tf.int32))
 
@@ -161,7 +161,7 @@ def extract_PSE_feats():
         # faces = model.faces-1
         # print '> Loaded the Basel Face Model to write the 3D output!'
 
-        print '> Start to estimate Expression, Shape, and Pose!'
+        print ('> Start to estimate Expression, Shape, and Pose!')
         with open(output_proc, 'rb') as csvfile:
             csvreader = csv.reader(csvfile, delimiter=',')
             for row in csvreader:
@@ -169,7 +169,7 @@ def extract_PSE_feats():
                 image_key = row[0]
                 image_file_path = row[1]
 
-                print '> Process ' + image_file_path
+                print ('> Process ' + image_file_path)
 
                 image = cv2.imread(image_file_path,
                                    1)  # BGR
@@ -192,7 +192,7 @@ def extract_PSE_feats():
                 # Shape = np.reshape(Shape, [-1])
                 Expr = np.reshape(Expr, [-1])
 
-                print Expr
+                print (Expr)
 
                 #########################################
                 ### Save 3D shape information (.ply file)

@@ -38,7 +38,7 @@ def extract_PSE_feats():
     ###################
     # Face Pose-Net
     ###################
-    net_data = np.load("./fpn_new_model/PAM_frontal_ALexNet.npy").item()
+    net_data = np.load("./fpn_new_model/PAM_frontal_ALexNet_py3.npy").item()
     pose_labels = np.zeros([FLAGS.batch_size, 6])
     x1 = tf.compat.v1.image.resize_bilinear(x, tf.constant([227, 227], dtype=tf.int32))
 
@@ -95,26 +95,26 @@ def extract_PSE_feats():
         load_path = "./Expression_Model/ini_exprNet_model.ckpt"
         saver_ini_expr_net.restore(sess, load_path)
 
-        print '> Start to estimate Expression, Shape, and Pose!'
+        print ('> Start to estimate Expression, Shape, and Pose!')
 
         realtime_estimating(sess, FLAGS, fc1le, pose_model, x)
 
 
 def main(_):
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"] = "2"
-    if FLAGS.num_gpus == 0:
-        dev = '/cpu:0'
-    elif FLAGS.num_gpus == 1:
-        dev = '/gpu:0'
-    else:
-        raise ValueError('Only support 0 or 1 gpu.')
-
     with tf.device('/cpu:0'):
         extract_PSE_feats()
+    # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+    # os.environ["CUDA_VISIBLE_DEVICES"]="2"
+    # if FLAGS.num_gpus == 0:
+    #         dev = '/cpu:0'
+    # elif FLAGS.num_gpus == 1:
+    #         dev = '/gpu:0'
+    # else:
+    #         raise ValueError('Only support 0 or 1 gpu.')
 
+    # #print dev
     # with tf.device(dev):
-    #     extract_PSE_feats()
+    #         extract_PSE_feats()
 
 
 if __name__ == '__main__':
