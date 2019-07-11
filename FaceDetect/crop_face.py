@@ -14,6 +14,7 @@ sys.path.append('../')
 import pose_utils as pu
 
 # construct the argument parse and parse the arguments
+'''
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--prototxt", required=True,
 	help="path to Caffe 'deploy' prototxt file")
@@ -22,8 +23,11 @@ ap.add_argument("-m", "--model", required=True,
 ap.add_argument("-c", "--confidence", type=float, default=0.5,
 	help="minimum probability to filter weak detections")
 args = vars(ap.parse_args())
+'''
 
-def runFaceDetect(frame, net, factor=0.25, _alexNetSize=227):
+
+
+def runFaceDetect(frame, net, factor=0.25, _alexNetSize=227, conf_thr=0.5):
     # grab the frame dimensions and convert it to a blob
     cropped_img = frame
     (h, w) = frame.shape[:2]
@@ -41,7 +45,8 @@ def runFaceDetect(frame, net, factor=0.25, _alexNetSize=227):
     #print(confidence)
     # filter out weak detections by ensuring the `confidence` is
     # greater than the minimum confidence
-    if confidence < args["confidence"]:
+    #if confidence < args["confidence"]:
+    if confidence < conf_thr:
         return cropped_img
 
     # compute the (x, y)-coordinates of the bounding box for the
@@ -73,42 +78,44 @@ def runFaceDetect(frame, net, factor=0.25, _alexNetSize=227):
 
     return cropped_img
     
+if __name__ == '__main__':
+    prototxt = './deploy.prototxt'
+    model = './res10_300x300_ssd_iter_140000.caffemodel'
 
 
+    # load our serialized model from disk
+    print("[INFO] loading model...")
+    #net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
+    net = cv2.dnn.readNetFromCaffe(prototxt, model)
 
+    # initialize the video stream and allow the cammera sensor to warmup
+    print("[INFO] starting video stream...")
+    vs = VideoStream(src=0).start()
+    time.sleep(2.0)
 
-# load our serialized model from disk
-print("[INFO] loading model...")
-net = cv2.dnn.readNetFromCaffe(args["prototxt"], args["model"])
+    # loop over the frames from the video stream
+    while True:
+        # grab the frame from the threaded video stream and resize it
+        # to have a maximum width of 400 pixels
+        
+        frame = vs.read()
+        frame = imutils.resize(frame, width=400)
+        
+        cropped_img = runFaceDetect(frame, net) # frame is updated by this function, showing a bbox of face
+        #print(cropped_img.shape)
 
-# initialize the video stream and allow the cammera sensor to warmup
-print("[INFO] starting video stream...")
-vs = VideoStream(src=0).start()
-time.sleep(2.0)
-
-# loop over the frames from the video stream
-while True:
-	# grab the frame from the threaded video stream and resize it
-	# to have a maximum width of 400 pixels
+        # show the output frame
+        cv2.imshow("Frame", frame)
+        cv2.imshow('Cropped Face', cropped_img)
+        key = cv2.waitKey(1) & 0xFF
     
-    frame = vs.read()
-    frame = imutils.resize(frame, width=400)
-    
-    cropped_img = runFaceDetect(frame, net) # frame is updated by this function, showing a bbox of face
-    #print(cropped_img)
+        # if the `q` key was pressed, break from the loop
+        if key == ord("q"):
+            break
 
-	# show the output frame
-    cv2.imshow("Frame", frame)
-    cv2.imshow('Cropped Face', cropped_img)
-    key = cv2.waitKey(1) & 0xFF
- 
-	# if the `q` key was pressed, break from the loop
-    if key == ord("q"):
-    	break
-
-# do a bit of cleanup
-cv2.destroyAllWindows()
-vs.stop()
+    # do a bit of cleanup
+    cv2.destroyAllWindows()
+    vs.stop()
 
 
 

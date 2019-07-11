@@ -53,7 +53,7 @@ def extract_PSE_feats():
                                             mean_labels, std_labels)
     pose_model._build_graph()
     del net_data
-
+    print('loading coefficients regression model.')
     ###################
     # Shape CNN
     ###################
@@ -87,7 +87,7 @@ def extract_PSE_feats():
     init_op = tf.compat.v1.global_variables_initializer()
     saver_ini_expr_net = tf.compat.v1.train.Saver(
         var_list=tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope='exprCNN'))
-
+    
     with tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(allow_soft_placement=True)) as sess:
         sess.run(init_op)
 
