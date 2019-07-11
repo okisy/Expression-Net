@@ -33,46 +33,44 @@ def runFaceDetect(frame, net, factor=0.25, _alexNetSize=227):
 	# pass the blob through the network and obtain the detections and
 	# predictions
     net.setInput(blob)
-    detections = net.forward()    
+    detections = net.forward()
+    max_conf_idx = np.argmax(detections[0,0,:,2])
+    # extract the confidence (i.e., probability) associated with the
+    # prediction
+    confidence = detections[0, 0, max_conf_idx, 2]
+    #print(confidence)
+    # filter out weak detections by ensuring the `confidence` is
+    # greater than the minimum confidence
+    if confidence < args["confidence"]:
+        return cropped_img
 
-	# loop over the detections
-    for i in range(0, detections.shape[2]):
-		# extract the confidence (i.e., probability) associated with the
-		# prediction
-        confidence = detections[0, 0, i, 2]
-        #print(confidence)
-		# filter out weak detections by ensuring the `confidence` is
-		# greater than the minimum confidence
-        if confidence < args["confidence"]:
-            continue
+    # compute the (x, y)-coordinates of the bounding box for the
+    # object
+    box = detections[0, 0, max_conf_idx, 3:7] * np.array([w, h, w, h])
+    (startX, startY, endX, endY) = box.astype("int")
+    #print((startX, startY, endX, endY))
+    width = endX - startX
+    height = endY - startY
+    bbox_dict = {}
+    #print((startX, startY, width, height))
+    bbox_dict['x'] = startX
+    bbox_dict['y'] = startY
+    bbox_dict['width'] = width
+    bbox_dict['height'] = height
+    #print(bbox_dict)
+    cropped_img = pu.cropFaceImage(frame, bbox_dict, factor, _alexNetSize)        
+    #print(type(cropped_img))
+    #print(_cropped_img.shape)
 
-		# compute the (x, y)-coordinates of the bounding box for the
-		# object
-        box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
-        (startX, startY, endX, endY) = box.astype("int")
-        #print((startX, startY, endX, endY))
-        width = endX - startX
-        height = endY - startY
-        bbox_dict = {}
-        #print((startX, startY, width, height))
-        bbox_dict['x'] = startX
-        bbox_dict['y'] = startY
-        bbox_dict['width'] = width
-        bbox_dict['height'] = height
-        #print(bbox_dict)
-        cropped_img = pu.cropFaceImage(frame, bbox_dict, factor, _alexNetSize)        
-        #print(_cropped_img)
-        #print(_cropped_img.shape)
- 
-        # draw the bounding box of the face along with the associated
-        # probability
-        text = "{:.2f}%".format(confidence * 100)
-        y = startY - 10 if startY - 10 > 10 else startY + 10        
-        cv2.rectangle(frame, (startX, startY), (endX, endY),
-			(0, 0, 255), 2)		
-        cv2.putText(frame, text, (startX, y),
-			cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
-    
+    # draw the bounding box of the face along with the associated
+    # probability
+    text = "{:.2f}%".format(confidence * 100)
+    y = startY - 10 if startY - 10 > 10 else startY + 10        
+    cv2.rectangle(frame, (startX, startY), (endX, endY),
+        (0, 0, 255), 2)		
+    cv2.putText(frame, text, (startX, y),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
+
     return cropped_img
     
 

@@ -143,12 +143,11 @@ def cropFaceImage(frame, data_dict, factor, _alexNetSize):
         factor: the extent to which we expand the original bbox size
         _alexNetSize: actual input image size which should be fed into a coefficient regression model
     output:
-        cropped_face: cv2.image format of cropped face image
+        cropped_face: np.ndarray format of cropped face image
     '''
 
     im = frame
-    if im is not None:
-        #print('Processing ' + filename + ' '+ str(count))
+    if im is not None:        
         sys.stdout.flush()
         lt_x = data_dict['x']
         lt_y = data_dict['y']
@@ -182,7 +181,7 @@ def cropFaceImage(frame, data_dict, factor, _alexNetSize):
         
         
     else:        
-        print('no image is input. something is wrong.')
+        print('no image is fed into this function. something is wrong.')
         resized_crop_img = None
     return resized_crop_img
 
