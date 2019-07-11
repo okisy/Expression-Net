@@ -30,8 +30,11 @@ def realtime_estimating(sess, FLAGS, fc1le, pose_model, x, cv2net_info=cv2net_in
         frame = vs.read()
         frame = imutils.resize(frame, width=400)
 
-        image = runFaceDetect(frame, net)
-        
+        faceOrNot, image = runFaceDetect(frame, net)
+        if faceOrNot == -1:
+            print('no faces detected')
+            cv2.imshow("Frame", frame)
+            continue
         #image = cv2.imread('./tmp/subject10_a.jpg', 1)
         #image = np.asarray(image)
         # Fix the grey image

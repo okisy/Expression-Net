@@ -47,7 +47,8 @@ def runFaceDetect(frame, net, factor=0.25, _alexNetSize=227, conf_thr=0.5):
     # greater than the minimum confidence
     #if confidence < args["confidence"]:
     if confidence < conf_thr:
-        return cropped_img
+        return (-1, cropped_img)
+        #return -1
 
     # compute the (x, y)-coordinates of the bounding box for the
     # object
@@ -76,7 +77,7 @@ def runFaceDetect(frame, net, factor=0.25, _alexNetSize=227, conf_thr=0.5):
     cv2.putText(frame, text, (startX, y),
         cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
 
-    return cropped_img
+    return (1, cropped_img)
     
 if __name__ == '__main__':
     prototxt = './deploy.prototxt'
@@ -101,8 +102,13 @@ if __name__ == '__main__':
         frame = vs.read()
         frame = imutils.resize(frame, width=400)
         
-        cropped_img = runFaceDetect(frame, net) # frame is updated by this function, showing a bbox of face
+        _, cropped_img = runFaceDetect(frame, net) # frame is updated by this function, showing a bbox of face        
         #print(cropped_img.shape)
+        '''
+        if type(cropped_img) == int:
+            print('no faces')
+            continue
+        '''
 
         # show the output frame
         cv2.imshow("Frame", frame)
