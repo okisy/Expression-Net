@@ -1,19 +1,19 @@
 import sys
+import imutils
 import numpy as np
 import tensorflow as tf
 import cv2
 import scipy.io as sio
-import pose_utils as pu
+from imutils.video import VideoStream
 import os
 import os.path
-import glob
 import time
 import scipy
-import scipy.io as sio
 import ST_model_nonTrainable_AlexNetOnFaces as Pose_model
 import utils
-import myparse
-import csv
+import open3d
+
+from FaceDetect.crop_face import runFaceDetect
 
 sys.path.append('./kaffe')
 sys.path.append('./ResNet')
@@ -26,20 +26,15 @@ tf.app.flags.DEFINE_integer('image_size', 227, 'Image side length.')
 tf.app.flags.DEFINE_integer('num_gpus', 1, 'Number of gpus used for training. (0 or 1)')
 tf.app.flags.DEFINE_integer('batch_size', 1, 'Batch Size')
 
-inputlist = sys.argv[1]  # You can try './input.csv' or input your own file
-
 # Global parameters
 _tmpdir = './tmp/'  # save intermediate images needed to fed into ExpNet, ShapeNet, and PoseNet
-print ('> make dir')
+print('> make dir')
 if not os.path.exists(_tmpdir):
     os.makedirs(_tmpdir)
 output_proc = 'output_preproc.csv'  # save intermediate image list
 factor = 0.25  # expand the given face bounding box to fit in the DCCNs
 _alexNetSize = 227
-
 mesh_folder = './output_ply'  # The location where .ply files are saved
-if not os.path.exists(mesh_folder):
-    os.makedirs(mesh_folder)
 
 # Get training image/labels mean/std for pose CNN
 file = np.load("./fpn_new_model/perturb_Oxford_train_imgs_mean.npz")
@@ -59,34 +54,33 @@ mean_image_exp = np.load('./Expression_Model/3DMM_expr_mean.npy')  # 3 x 224 x 2
 mean_image_exp = np.transpose(mean_image_exp, [1, 2, 0])  # 224 x 224 x 3, [0,255]
 
 
-def extract_PSE_feats():
-    # Prepare data
-    data_dict = myparse.parse_input(inputlist)  # please see input.csv for the input format
-    print (len(data_dict))
-    ## Pre-processing the images
-    print ('> preproc')
-    pu.preProcessImage(_tmpdir, data_dict, './', factor, _alexNetSize, output_proc)
-
+def face_reconstruction():
     # placeholders for the batches
     x = tf.compat.v1.placeholder(tf.float32, [FLAGS.batch_size, FLAGS.image_size, FLAGS.image_size, 3])
 
     ###################
     # Face Pose-Net
     ###################
-    # net_data = np.load("./fpn_new_model/PAM_frontal_ALexNet_py3").item()
-    # pose_labels = np.zeros([FLAGS.batch_size,6])
-    # x1 = tf.compat.v1.image.resize_bilinear(x, tf.constant([227,227], dtype=tf.int32))
+    start = time.time()
+
+    net_data = np.load("./fpn_new_model/PAM_frontal_ALexNet_py3.npy").item() # 854MB
+    pose_labels = np.zeros([FLAGS.batch_size, 6])
+    x1 = tf.compat.v1.image.resize_bilinear(x, tf.constant([227, 227], dtype=tf.int32))
 
     # # Image normalization
-    # x1 = x1 / 255. # from [0,255] to [0,1]
-    # # subtract training mean
-    # mean = tf.reshape(train_mean_vec, [1, 1, 1, 3])
-    # mean = tf.cast(mean, 'float32')
-    # x1 = x1 - mean
+    x1 = x1 / 255.  # from [0,255] to [0,1]
+    # subtract training mean
+    mean = tf.reshape(train_mean_vec, [1, 1, 1, 3])
+    mean = tf.cast(mean, 'float32')
+    x1 = x1 - mean
 
-    # pose_model = Pose_model.Pose_Estimation(x1, pose_labels, 'valid', 0, 1, 1, 0.01, net_data, FLAGS.batch_size, mean_labels, std_labels)
-    # pose_model._build_graph()
-    # del net_data
+    pose_model = Pose_model.Pose_Estimation(x1, pose_labels, 'valid', 0, 1, 1, 0.01, net_data,
+                                            FLAGS.batch_size, mean_labels, std_labels)
+    pose_model._build_graph()
+    del net_data
+
+    print("Face Pose Net {}".format(time.time() - start))
+    start = time.time()
 
     ###################
     # Shape CNN
@@ -100,19 +94,22 @@ def extract_PSE_feats():
     mean = tf.cast(mean, 'float32')
     x2 = x2 - mean
 
-    # with tf.variable_scope('shapeCNN'):
-    #         net_shape = resnet101_shape({'input': x2}, trainable=True)
-    #         pool5 = net_shape.layers['pool5']
-    #         pool5 = tf.squeeze(pool5)
-    #         pool5 = tf.reshape(pool5, [FLAGS.batch_size,-1])
+    with tf.variable_scope('shapeCNN'):
+        net_shape = resnet101_shape({'input': x2}, trainable=True)
+        pool5 = net_shape.layers['pool5']
+        pool5 = tf.squeeze(pool5)
+        pool5 = tf.reshape(pool5, [FLAGS.batch_size, -1])
 
-    #         npzfile = np.load('./ResNet/ShapeNet_fc_weights.npz')
-    #         ini_weights_shape = npzfile['ini_weights_shape']
-    #         ini_biases_shape = npzfile['ini_biases_shape']
-    #         with tf.variable_scope('shapeCNN_fc1'):
-    #                 fc1ws = tf.Variable(tf.reshape(ini_weights_shape, [2048,-1]), trainable=True, name='weights')
-    #                 fc1bs = tf.Variable(tf.reshape(ini_biases_shape, [-1]), trainable=True, name='biases')
-    #                 fc1ls = tf.nn.bias_add(tf.matmul(pool5, fc1ws), fc1bs)
+        npzfile = np.load('./ResNet/ShapeNet_fc_weights.npz')
+        ini_weights_shape = npzfile['ini_weights_shape']
+        ini_biases_shape = npzfile['ini_biases_shape']
+        with tf.variable_scope('shapeCNN_fc1'):
+            fc1ws = tf.Variable(tf.reshape(ini_weights_shape, [2048, -1]), trainable=True, name='weights')
+            fc1bs = tf.Variable(tf.reshape(ini_biases_shape, [-1]), trainable=True, name='biases')
+            fc1ls = tf.nn.bias_add(tf.matmul(pool5, fc1ws), fc1bs)
+
+    print("Shape CNN {}".format(time.time() - start))
+    start = time.time()
 
     ###################
     # Expression CNN
@@ -133,86 +130,140 @@ def extract_PSE_feats():
 
     # Add ops to save and restore all the variables.
     init_op = tf.compat.v1.global_variables_initializer()
-    # saver_pose = tf.train.Saver(var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='Spatial_Transformer'))
-    # saver_ini_shape_net = tf.train.Saver(var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='shapeCNN'))
+    saver_pose = tf.train.Saver(var_list=tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,
+                                                           scope='Spatial_Transformer'))
+    saver_ini_shape_net = tf.train.Saver(var_list=tf.get_collection(
+        tf.GraphKeys.GLOBAL_VARIABLES, scope='shapeCNN'))
     saver_ini_expr_net = tf.compat.v1.train.Saver(
         var_list=tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.GLOBAL_VARIABLES, scope='exprCNN'))
 
-    with tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(allow_soft_placement=True)) as sess:
+    print("Expression CNN {}".format(time.time() - start))
 
+    ###################
+    # Facial Detector
+    ###################
+    prototxt = './FaceDetect/deploy.prototxt'
+    model_path = './FaceDetect/res10_300x300_ssd_iter_140000.caffemodel'
+    cv2net_info = (prototxt, model_path)
+
+    # load our serialized model from disk
+    print("[INFO] loading face detection model...")
+    net = cv2.dnn.readNetFromCaffe(cv2net_info[0], cv2net_info[-1])
+
+    with tf.compat.v1.Session(config=tf.compat.v1.ConfigProto(allow_soft_placement=True)) as sess:
+        start = time.time()
         sess.run(init_op)
 
         # Load face pose net model from Chang et al.'ICCVW17
-        # load_path = "./fpn_new_model/model_0_1.0_1.0_1e-07_1_16000.ckpt"
-        # saver_pose.restore(sess, load_path)
+        load_path = "./fpn_new_model/model_0_1.0_1.0_1e-07_1_16000.ckpt"
+        saver_pose.restore(sess, load_path)
+        print('> Loaded the Pose Model {}'.format(time.time() - start))
+        start = time.time()
 
         # load 3dmm shape and texture model from Tran et al.' CVPR2017
-        # load_path = "./Shape_Model/ini_ShapeTextureNet_model.ckpt"
-        # saver_ini_shape_net.restore(sess, load_path)
+        load_path = "./Shape_Model/ini_ShapeTextureNet_model.ckpt"
+        saver_ini_shape_net.restore(sess, load_path)
+        print('> Loaded the Shape Model Model {}'.format(time.time() - start))
+        start = time.time()
 
         # load our expression net model
         load_path = "./Expression_Model/ini_exprNet_model.ckpt"
         saver_ini_expr_net.restore(sess, load_path)
+        print('> Loaded the Expression Model {}'.format(time.time() - start))
+        start = time.time()
 
-        ## Modifed Basel Face Model
-        # BFM_path = './Shape_Model/BaselFaceModel_mod.mat'
-        # model = scipy.io.loadmat(BFM_path,squeeze_me=True,struct_as_record=False)
-        # model = model["BFM"]
-        # faces = model.faces-1
-        # print '> Loaded the Basel Face Model to write the 3D output!'
+        # Modified Basel Face Model
+        BFM_path = './Shape_Model/BaselFaceModel_mod.mat' # 140MB
+        model = scipy.io.loadmat(BFM_path, squeeze_me=True, struct_as_record=False)
+        model = model["BFM"]
+        faces = model.faces - 1
+        print('> Loaded the Basel Face Model to write the 3D output! {}'
+              .format(time.time() - start))
 
-        print ('> Start to estimate Expression, Shape, and Pose!')
-        with open(output_proc, 'rb') as csvfile:
-            csvreader = csv.reader(csvfile, delimiter=',')
-            for row in csvreader:
+        print('> Start to estimate Expression, Shape, and Pose!')
+        # initialize the video stream and allow the camera sensor to warm up
+        print("[INFO] starting video stream...")
+        vs = VideoStream(src=0).start()
+        time.sleep(2.0)
 
-                image_key = row[0]
-                image_file_path = row[1]
+        idx = 0
+        SEP_list = []
+        frame_list= []
+        while True:
+            start = time.time()
 
-                print ('> Process ' + image_file_path)
+            frame = vs.read()
+            frame = imutils.resize(frame, width=400)
 
-                image = cv2.imread(image_file_path,
-                                   1)  # BGR
-                image = np.asarray(image)
-                # Fix the grey image
-                if len(image.shape) < 3:
-                    image_r = np.reshape(image, (image.shape[0], image.shape[1], 1))
-                    image = np.append(image_r, image_r, axis=2)
-                    image = np.append(image, image_r, axis=2)
+            faceOrNot, image = runFaceDetect(frame, net)
+            cv2.imshow("Frame", frame)
 
-                image = np.reshape(image, [1, FLAGS.image_size, FLAGS.image_size, 3])
-                # (Shape_Texture, Expr, Pose) = sess.run([fc1ls, fc1le, pose_model.preds_unNormalized], feed_dict={x: image})
-                Expr = sess.run([fc1le], feed_dict={x: image})
+            if faceOrNot == -1:
+                print('no faces detected')
+                # cv2.imshow("Frame", frame)
+                continue
 
-                outFile = mesh_folder + '/' + image_key
+            # Fix the grey image
+            if len(image.shape) < 3:
+                image_r = np.reshape(image, (image.shape[0], image.shape[1], 1))
+                image = np.append(image_r, image_r, axis=2)
+                image = np.append(image, image_r, axis=2)
 
-                # Pose = np.reshape(Pose, [-1])
-                # Shape_Texture = np.reshape(Shape_Texture, [-1])
-                # Shape = Shape_Texture[0:99]
-                # Shape = np.reshape(Shape, [-1])
-                Expr = np.reshape(Expr, [-1])
+            image = np.reshape(image, [1, FLAGS.image_size, FLAGS.image_size, 3])
+            (Shape_Texture, Expr, Pose) = sess.run([fc1ls, fc1le, pose_model.preds_unNormalized],
+                                                   feed_dict={x: image})
 
-                print (Expr)
+            Pose = np.reshape(Pose, [-1])
+            Shape_Texture = np.reshape(Shape_Texture, [-1])
+            # Shape = Shape_Texture[0:99]
+            # Shape = np.reshape(Shape, [-1])
+            Expr = np.reshape(Expr, [-1])
+            SEP, _ = utils.projectBackBFM_withEP(model, Shape_Texture, Expr, Pose)
 
-                #########################################
-                ### Save 3D shape information (.ply file)
-                #########################################
-                # Shape Only
-                # S,T = utils.projectBackBFM(model,Shape_Texture)
-                # utils.write_ply_textureless(outFile + '_ShapeOnly.ply', S, faces)
+            mesh_name = mesh_folder + '/' + str(idx)
+            utils.write_ply_textureless(mesh_name + '_Shape_Expr_Pose.ply', SEP, faces)
+            pcd = open3d.io.read_point_cloud(mesh_name + '_Shape_Expr_Pose.ply')
+            open3d.visualization.draw_geometries([pcd])
 
-                # Shape + Expression
-                # SE,TE = utils.projectBackBFM_withExpr(model, Shape_Texture, Expr)
-                # utils.write_ply_textureless(outFile + '_Shape_and_Expr.ply', SE, faces)
+            # SEP_list.append(SEP)
+            # frame_list.append(frame)
 
-                # Shape + Expression + Pose
-                # SEP,TEP = utils.projectBackBFM_withEP(model, Shape_Texture, Expr, Pose)
-                # utils.write_ply_textureless(outFile + '_Shape_Expr_Pose.ply', SEP, faces)
+            print(time.time() - start)
+
+            key = cv2.waitKey(1) & 0xFF
+
+            idx += 1
+            if idx > 20:
+                break
+
+            # if the `q` key was pressed, break from the loop
+            if key == ord("q"):
+                break
+
+        # write_meshes(frame_list, SEP_list, faces)
+        # do a bit of cleanup
+        cv2.destroyAllWindows()
+        vs.stop()
+
+
+def write_meshes(frames, SEPs, faces):
+    start = time.time()
+    mesh_folder = './output_ply'  # The location where .ply files are saved
+    if not os.path.exists(mesh_folder):
+        os.makedirs(mesh_folder)
+
+    for i, SEP in enumerate(SEPs):
+        frame_name = mesh_folder + '/' + str(i) + '.jpg'
+        cv2.imwrite(frame_name, frames[i])
+        mesh_name = mesh_folder + '/' + str(i)
+        utils.write_ply_textureless(mesh_name + '_Shape_Expr_Pose.ply', SEP, faces)
+    print("Writing meshes complete {}".format(time.time() - start))
 
 
 def main(_):
     with tf.device('/cpu:0'):
-        extract_PSE_feats()
+        face_reconstruction()
+
     # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     # os.environ["CUDA_VISIBLE_DEVICES"]="2"
     # if FLAGS.num_gpus == 0:

@@ -130,3 +130,4 @@ fpn_new_model/
 Shape_Model/
 output_ply/
 output_preproc.csv
+*.png
