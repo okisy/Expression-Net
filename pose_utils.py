@@ -58,11 +58,9 @@ def image_bbox_processing_v2(img, bbox):
         img_h, img_w, img_c = imgc.shape
         imgc = np.hstack([np.zeros((img_h, fillings[0][0], img_c), dtype=np.uint8), imgc])
     if fillings[1] > 0:
-
         img_h, img_w, img_c = imgc.shape
         imgc = np.vstack([np.zeros((fillings[1][0], img_w, img_c), dtype=np.uint8), imgc])
     if fillings[2] > 0:
-
         img_h, img_w, img_c = imgc.shape
         imgc = np.hstack([imgc, np.zeros((img_h, fillings[2][0], img_c), dtype=np.uint8)])
     if fillings[3] > 0:
@@ -100,15 +98,15 @@ def preProcessImage(_savingDir, data_dict, data_root, factor, _alexNetSize, _lis
             bbox[1] = center[1] - side_length / 2
             bbox[2] = center[0] + side_length / 2
             bbox[3] = center[1] + side_length / 2
-            #img_2, bbox_green = image_bbox_processing_v2(im, bbox)
-            #%% Get the expanded square bbox
+            # img_2, bbox_green = image_bbox_processing_v2(im, bbox)
+            # %% Get the expanded square bbox
             bbox_red = increaseBbox(bbox, factor)
-            #[img, bbox_red] = image_bbox_processing_v2(img, bbox_red);
+            # [img, bbox_red] = image_bbox_processing_v2(img, bbox_red);
             img_3, bbox_new = image_bbox_processing_v2(im, bbox_red)
-            #%% Crop and resized
-            #bbox_red = ceil(bbox_red);
+            # %% Crop and resized
+            # bbox_red = ceil(bbox_red);
             bbox_new = np.ceil(bbox_new)
-            #side_length = max(bbox_new(3) - bbox_new(1), bbox_new(4) - bbox_new(2));
+            # side_length = max(bbox_new(3) - bbox_new(1), bbox_new(4) - bbox_new(2));
             side_length = max(bbox_new[2] - bbox_new[0], bbox_new[3] - bbox_new[1])
             bbox_new[2:4] = bbox_new[0:2] + side_length
             # crop_img = img(bbox_red(2):bbox_red(4), bbox_red(1):bbox_red(3), :);
@@ -129,6 +127,7 @@ def preProcessImage(_savingDir, data_dict, data_root, factor, _alexNetSize, _lis
         #    break
     fileIn.close()
 
+
 def cropFaceImage(frame, data_dict, factor, _alexNetSize):
     #### Formatting the images as needed
 
@@ -147,7 +146,7 @@ def cropFaceImage(frame, data_dict, factor, _alexNetSize):
 
     im = frame
     if im is not None:
-        #print('Processing ' + filename + ' '+ str(count))
+        # print('Processing ' + filename + ' '+ str(count))
         sys.stdout.flush()
         lt_x = data_dict['x']
         lt_y = data_dict['y']
@@ -155,36 +154,37 @@ def cropFaceImage(frame, data_dict, factor, _alexNetSize):
         rb_y = lt_y + data_dict['height']
         w = data_dict['width']
         h = data_dict['height']
-        center = ( (lt_x+rb_x)/2, (lt_y+rb_y)/2 )
-        side_length = max(w,h);
-        bbox = np.zeros( (4,1), dtype=np.float32 )
-        bbox[0] = center[0] - side_length/2
-        bbox[1] = center[1] - side_length/2
-        bbox[2] = center[0] + side_length/2
-        bbox[3] = center[1] + side_length/2
-        #img_2, bbox_green = image_bbox_processing_v2(im, bbox)
-        #%% Get the expanded square bbox
+        center = ((lt_x + rb_x) / 2, (lt_y + rb_y) / 2)
+        side_length = max(w, h);
+        bbox = np.zeros((4, 1), dtype=np.float32)
+        bbox[0] = center[0] - side_length / 2
+        bbox[1] = center[1] - side_length / 2
+        bbox[2] = center[0] + side_length / 2
+        bbox[3] = center[1] + side_length / 2
+        # img_2, bbox_green = image_bbox_processing_v2(im, bbox)
+        # %% Get the expanded square bbox
         bbox_red = increaseBbox(bbox, factor)
-        #[img, bbox_red] = image_bbox_processing_v2(img, bbox_red);
+        # [img, bbox_red] = image_bbox_processing_v2(img, bbox_red);
         img_3, bbox_new = image_bbox_processing_v2(im, bbox_red)
-        #%% Crop and resized
-        #bbox_red = ceil(bbox_red);
-        bbox_new =  np.ceil( bbox_new )
-        #side_length = max(bbox_new(3) - bbox_new(1), bbox_new(4) - bbox_new(2));
-        side_length = max( bbox_new[2] - bbox_new[0], bbox_new[3] - bbox_new[1] )
+        # %% Crop and resized
+        # bbox_red = ceil(bbox_red);
+        bbox_new = np.ceil(bbox_new)
+        # side_length = max(bbox_new(3) - bbox_new(1), bbox_new(4) - bbox_new(2));
+        side_length = max(bbox_new[2] - bbox_new[0], bbox_new[3] - bbox_new[1])
         bbox_new[2:4] = bbox_new[0:2] + side_length
-        #crop_img = img(bbox_red(2):bbox_red(4), bbox_red(1):bbox_red(3), :);
-        #resized_crop_img = imresize(crop_img, [227, 227]);# % re-scaling to 227 x 227
+        # crop_img = img(bbox_red(2):bbox_red(4), bbox_red(1):bbox_red(3), :);
+        # resized_crop_img = imresize(crop_img, [227, 227]);# % re-scaling to 227 x 227
         bbox_new = bbox_new.astype(int)
         crop_img = img_3[bbox_new[1][0]:bbox_new[3][0], bbox_new[0][0]:bbox_new[2][0], :];
-        resized_crop_img = cv2.resize(crop_img, ( _alexNetSize, _alexNetSize ), interpolation = cv2.INTER_CUBIC)
+        resized_crop_img = cv2.resize(crop_img, (_alexNetSize, _alexNetSize), interpolation=cv2.INTER_CUBIC)
 
 
-    else:        
+    else:
         print('no image is input. something is wrong.')
         resized_crop_img = None
     return resized_crop_img
 
+
 def replaceInFile(filep, before, after):
     for line in fileinput.input(filep, inplace=True):
-        print(line.replace(before, after),)
+        print(line.replace(before, after), )

@@ -35,8 +35,10 @@ def realtime_estimating(sess, FLAGS, fc1le, pose_model, x, cv2net_info=cv2net_in
             print('no faces detected')
             cv2.imshow("Frame", frame)
             continue
-        #image = cv2.imread('./tmp/subject10_a.jpg', 1)
-        #image = np.asarray(image)
+
+        # image = cv2.imread('./tmp/subject10_a.jpg', 1)
+        # image = np.asarray(image)
+
         # Fix the grey image
         if len(image.shape) < 3:
             image_r = np.reshape(image, (image.shape[0], image.shape[1], 1))
@@ -58,7 +60,7 @@ def realtime_estimating(sess, FLAGS, fc1le, pose_model, x, cv2net_info=cv2net_in
         
         # show the output frame
         cv2.imshow("Frame", frame)
-        #cv2.imshow('Cropped Face', image)
+        # cv2.imshow('Cropped Face', image)
         key = cv2.waitKey(1) & 0xFF
     
         # if the `q` key was pressed, break from the loop
