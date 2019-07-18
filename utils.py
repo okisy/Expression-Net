@@ -24,7 +24,6 @@ rescaleBB = [1.785974, 1.951171, 1.835600, 1.670403]
 
 
 def get_mean_shape(model):
-
     S = model.shapeMU
     numVert = int(S.shape[0] / 3)
     # Final Saving for visualization
@@ -85,6 +84,7 @@ def projectBackBFM_withExpr(model, features, expr_paras):
     return S, T
 
 
+# model = BFM, features = Shape_Texture
 def projectBackBFM_withEP(model, features, expr_paras, pose_paras):
     alpha = model.shapeEV * 0
     for it in range(0, 99):
@@ -102,7 +102,7 @@ def projectBackBFM_withEP(model, features, expr_paras, pose_paras):
     numVert = int(S.shape[0] / 3)
 
     # Pose
-    #PI = np.array([[  2.88000000e+03, 0.00000000e+00, 1.12000000e+02], [0.00000000e+00, 2.88000000e+03, 1.12000000e+02], [0, 0, 1]]);
+    # PI = np.array([[  2.88000000e+03, 0.00000000e+00, 1.12000000e+02], [0.00000000e+00, 2.88000000e+03, 1.12000000e+02], [0, 0, 1]]);
     r = pose_paras[0:3]
     r[1] = -r[1]
     r[2] = -r[2]
@@ -115,7 +115,7 @@ def projectBackBFM_withEP(model, features, expr_paras, pose_paras):
     S = np.reshape(S, (numVert, 3))
     # print S.shape
     S_RT = np.matmul(R, np.transpose(S)) + np.reshape(t, [3, 1])
-    #S_RT = np.matmul(PI, S_RT)
+    # S_RT = np.matmul(PI, S_RT)
     S_RT = np.transpose(S_RT)
 
     # (Texture)

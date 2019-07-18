@@ -2,27 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4bcc0b45-97f6-4820-903d-6031f1fd8033" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main_ExpShapePoseNet.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_ExpShapePoseNet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main_vtuber.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_vtuber.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject10_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject11_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject12_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject13_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject14_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject15_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject1_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject2_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject3_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject4_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject5_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject6_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject7_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject8_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/output_ply/subject9_a_00.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pose_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/pose_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/realtime_estimating.py" beforeDir="false" afterPath="$PROJECT_DIR$/realtime_estimating.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -35,7 +17,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
+            <state relative-caret-position="920">
               <caret line="52" column="5" selection-start-line="52" selection-start-column="5" selection-end-line="52" selection-end-column="5" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
@@ -59,17 +41,33 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main_ExpShapePoseNet.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2">
-              <caret line="199" selection-start-line="199" selection-end-line="199" />
+            <state relative-caret-position="269">
+              <caret line="219" column="16" selection-start-line="219" selection-start-column="12" selection-end-line="219" selection-end-column="16" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="120">
+              <caret line="6" column="25" lean-forward="true" selection-start-line="6" selection-start-column="25" selection-end-line="6" selection-end-column="25" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
+        <entry file="file://$PROJECT_DIR$/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="387">
-              <caret line="131" column="18" lean-forward="true" selection-start-line="131" selection-start-column="18" selection-end-line="131" selection-end-column="18" />
+            <state relative-caret-position="177">
+              <caret line="93" column="16" lean-forward="true" selection-start-line="93" selection-start-column="16" selection-end-line="93" selection-end-column="16" />
+              <folding>
+                <element signature="e#4410#5168#0" />
+                <element signature="e#5219#5832#0" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -94,8 +92,9 @@
       <find>make dir</find>
       <find>saver_pose</find>
       <find>mesh_folder</find>
-      <find>mesh_folder</find>
       <find>faces</find>
+      <find>model</find>
+      <find>get_mean_shape</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -116,8 +115,10 @@
         <option value="$PROJECT_DIR$/realtime_estimating.py" />
         <option value="$PROJECT_DIR$/face_reconstuction.py" />
         <option value="$PROJECT_DIR$/pose_utils.py" />
-        <option value="$PROJECT_DIR$/main_ExpShapePoseNet.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/test.py" />
+        <option value="$PROJECT_DIR$/main_ExpShapePoseNet.py" />
+        <option value="$PROJECT_DIR$/utils.py" />
       </list>
     </option>
   </component>
@@ -132,7 +133,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -149,6 +149,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -171,7 +172,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.test">
     <configuration name="main_ExpShapePoseNet" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Expression-Net" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -194,8 +195,31 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Expression-Net" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.test" />
         <item itemvalue="Python.main_ExpShapePoseNet" />
       </list>
     </recent_temporary>
@@ -214,23 +238,23 @@
       <workItem from="1562787247319" duration="154000" />
       <workItem from="1562788325600" duration="1345000" />
       <workItem from="1563201069145" duration="6518000" />
-      <workItem from="1563210959741" duration="1065000" />
+      <workItem from="1563210959741" duration="4688000" />
+      <workItem from="1563372589326" duration="5140000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="21140000" />
+    <option name="totallyTimeSpent" value="29903000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="735" extended-state="6" />
-    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.23567393" />
+      <window_info content_ui="combo" id="Project" order="0" weight="0.23567393" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3298791" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.6677686" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.6666667" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -241,7 +265,7 @@
       <window_info anchor="bottom" id="Statistic" order="10" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.88428324" />
       <window_info anchor="bottom" id="Event Log" order="12" side_tool="true" weight="0.3289256" />
-      <window_info anchor="bottom" id="Python Console" order="13" />
+      <window_info anchor="bottom" id="Python Console" order="13" weight="0.7495682" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -279,7 +303,8 @@
     <option name="version" value="1" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Expression_Net$main_ExpShapePoseNet.coverage" NAME="main_ExpShapePoseNet Coverage Results" MODIFIED="1562764300563" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Expression_Net$main_ExpShapePoseNet.coverage" NAME="main_ExpShapePoseNet Coverage Results" MODIFIED="1563213155331" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Expression_Net$test.coverage" NAME="test Coverage Results" MODIFIED="1563373645916" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/ST_model_nonTrainable_AlexNetOnFaces.py">
@@ -368,33 +393,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/face_reconstuction.py" />
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret line="52" column="5" selection-start-line="52" selection-start-column="5" selection-end-line="52" selection-end-column="5" />
-          <folding>
-            <element signature="e#0#10#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/realtime_estimating.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1120">
-          <caret line="61" column="34" selection-start-line="61" selection-start-column="8" selection-end-line="61" selection-end-column="34" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3440">
-          <caret line="173" column="20" selection-start-line="173" selection-start-column="20" selection-end-line="173" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/pose_utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2800">
@@ -419,17 +417,58 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main_ExpShapePoseNet.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2">
-          <caret line="199" selection-start-line="199" selection-end-line="199" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="387">
           <caret line="131" column="18" lean-forward="true" selection-start-line="131" selection-start-column="18" selection-end-line="131" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="920">
+          <caret line="52" column="5" selection-start-line="52" selection-start-column="5" selection-end-line="52" selection-end-column="5" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/realtime_estimating.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1120">
+          <caret line="61" column="34" selection-start-line="61" selection-start-column="8" selection-end-line="61" selection-end-column="34" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="6" column="25" lean-forward="true" selection-start-line="6" selection-start-column="25" selection-end-line="6" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main_ExpShapePoseNet.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="269">
+          <caret line="219" column="16" selection-start-line="219" selection-start-column="12" selection-end-line="219" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#10#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="177">
+          <caret line="93" column="16" lean-forward="true" selection-start-line="93" selection-start-column="16" selection-end-line="93" selection-end-column="16" />
+          <folding>
+            <element signature="e#4410#5168#0" />
+            <element signature="e#5219#5832#0" />
+          </folding>
         </state>
       </provider>
     </entry>
