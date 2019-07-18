@@ -12,7 +12,7 @@ import scipy
 import ST_model_nonTrainable_AlexNetOnFaces as Pose_model
 import utils
 import open3d
-import pandas
+import pandas as pd
 
 from FaceDetect.crop_face import runFaceDetect
 
@@ -188,11 +188,13 @@ def face_reconstruction():
         time.sleep(2.0)
 
         idx = 0
-        coeffs = {'FRAME':[]}
+        coeffs = {}
+        coeffs['FRAME'] = []
         for i in range(6):
             coeffs['POSE' + str(i)] = []
         for i in range(29):
             coeffs['EXP' + str(i)] = []
+
         while True:
             start = time.time()
 
@@ -233,29 +235,32 @@ def face_reconstruction():
 
             # Write the mesh
             mesh_name = mesh_folder + '/' + str(idx)
-            # utils.write_ply_textureless(mesh_name + '_Shape_Expr_Pose.ply', SEP, faces)
-            utils.write_ply(mesh_name + '_Shape_Expr_Pose.ply', SEP, faces)
-            
+            utils.write_ply_textureless(mesh_name + '_Shape_Expr_Pose.ply', SEP, faces)
+            # utils.write_ply(mesh_name + '_Shape_Expr_Pose.ply', SEP, faces)
+
+            idx += 1
+            # if idx > 20:
+            #     break
+
+            key = cv2.waitKey(20) & 0xFF
+            # if the `q` key was pressed, break from the loop
+            if key == ord("q"):
+                break
+
             # Visualize 3D reconstruction result
             pcd = open3d.io.read_point_cloud(mesh_name + '_Shape_Expr_Pose.ply')
             open3d.visualization.draw_geometries([pcd])
 
             print(time.time() - start)
 
-            key = cv2.waitKey(1) & 0xFF
-
-            idx += 1
-            if idx > 20:
-                break
-
-            # if the `q` key was pressed, break from the loop
-            if key == ord("q"):
-                break
-
         # write_meshes(frame_list, SEP_list, faces)
         # do a bit of cleanup
         cv2.destroyAllWindows()
         vs.stop()
+
+        # Write coeffs to csv file
+        df = pd.DataFrame(coeffs)
+        df.to_csv(coeff_csv, sep=',', encoding='utf-8', index=False)
 
 
 def write_meshes(frames, SEPs, faces):
