@@ -131,3 +131,7 @@ Shape_Model/
 output_ply/
 output_preproc.csv
 *.png
+/exp_basis
+exp_basis.rar
+exp_basis_3.rar
+test.py

@@ -12,6 +12,7 @@ import scipy
 import ST_model_nonTrainable_AlexNetOnFaces as Pose_model
 import utils
 import open3d
+import pandas as pd
 
 from FaceDetect.crop_face import runFaceDetect
 
@@ -31,7 +32,7 @@ _tmpdir = './tmp/'  # save intermediate images needed to fed into ExpNet, ShapeN
 print('> make dir')
 if not os.path.exists(_tmpdir):
     os.makedirs(_tmpdir)
-output_proc = 'output_preproc.csv'  # save intermediate image list
+coeff_csv = "coeff.csv" # The csv file that saves pose & expression coefficients
 factor = 0.25  # expand the given face bounding box to fit in the DCCNs
 _alexNetSize = 227
 mesh_folder = './output_ply'  # The location where .ply files are saved
@@ -187,8 +188,13 @@ def face_reconstruction():
         time.sleep(2.0)
 
         idx = 0
-        SEP_list = []
-        frame_list= []
+        coeffs = {}
+        coeffs['FRAME'] = []
+        for i in range(6):
+            coeffs['POSE' + str(i)] = []
+        for i in range(29):
+            coeffs['EXP' + str(i)] = []
+
         while True:
             start = time.time()
 
@@ -220,30 +226,41 @@ def face_reconstruction():
             Expr = np.reshape(Expr, [-1])
             SEP, _ = utils.projectBackBFM_withEP(model, Shape_Texture, Expr, Pose)
 
+            # Save the pose & expression coefficients
+            coeffs['FRAME'].append(idx)
+            for i in range(6):
+                coeffs['POSE' + str(i)].append(Pose[i])
+            for i in range(29):
+                coeffs['EXP' + str(i)].append(Expr[i])
+
+            # Write the mesh
             mesh_name = mesh_folder + '/' + str(idx)
             utils.write_ply_textureless(mesh_name + '_Shape_Expr_Pose.ply', SEP, faces)
-            pcd = open3d.io.read_point_cloud(mesh_name + '_Shape_Expr_Pose.ply')
-            open3d.visualization.draw_geometries([pcd])
-
-            # SEP_list.append(SEP)
-            # frame_list.append(frame)
-
-            print(time.time() - start)
-
-            key = cv2.waitKey(1) & 0xFF
+            # utils.write_ply(mesh_name + '_Shape_Expr_Pose.ply', SEP, faces)
 
             idx += 1
-            if idx > 20:
-                break
+            # if idx > 20:
+            #     break
 
+            key = cv2.waitKey(20) & 0xFF
             # if the `q` key was pressed, break from the loop
             if key == ord("q"):
                 break
+
+            # Visualize 3D reconstruction result
+            pcd = open3d.io.read_point_cloud(mesh_name + '_Shape_Expr_Pose.ply')
+            open3d.visualization.draw_geometries([pcd])
+
+            print(time.time() - start)
 
         # write_meshes(frame_list, SEP_list, faces)
         # do a bit of cleanup
         cv2.destroyAllWindows()
         vs.stop()
+
+        # Write coeffs to csv file
+        df = pd.DataFrame(coeffs)
+        df.to_csv(coeff_csv, sep=',', encoding='utf-8', index=False)
 
 
 def write_meshes(frames, SEPs, faces):
